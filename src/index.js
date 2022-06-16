@@ -6,25 +6,43 @@ import {
 
 const data = [
   {
-    name: 'Page A', uv: 4000, pv: 2400, amt: 2600, red: 5630
+    name: 'Flour', threshhold: 4000, forecast: 2400, currentInventory: 2600, Q1Sales: 5630,  Q2Sales: 3400
   },
   {
-    name: 'Page B', uv: 3000, pv: 1398, amt: 2210, red: 3500,
+    name: 'Shampoo', threshhold: 3000, forecast: 1398, currentInventory: 2210, Q1Sales: 3500,  Q2Sales: 56000
   },
   {
-    name: 'Page C', uv: 2000, pv: 9800, amt: 2290,
+    name: 'Cooking oil', threshhold: 2000, forecast: 9800, currentInventory: 2290, Q1Sales: 3500 ,  Q2Sales: 7667
   },
   {
-    name: 'Page D', uv: 2780, pv: 3908, amt: 2000,
+    name: 'Tissues', threshhold: 2780, forecast: 3908, currentInventory: 2000, Q1Sales: 3500,  Q2Sales: 3345
   },
   {
-    name: 'Page E', uv: 1890, pv: 4800, amt: 2181,
+    name: 'Cooking Wine', threshhold: 1890, forecast: 4800, currentInventory: 2181, Q1Sales: 3500,  Q2Sales: 3400
   },
   {
-    name: 'Page F', uv: 2390, pv: 3800, amt: 2500,
+    name: 'Pasta', threshhold: 2390, forecast: 3800, currentInventory: 2500, Q1Sales: 3500,  Q2Sales: 1200
   },
   {
-    name: 'Page G', uv: 3490, pv: 4300, amt: 2100,
+    name: 'Celery', threshhold: 3490, forecast: 4300, currentInventory: 2100, prevSales: 3500,  Q2Sales: 4578
+  },
+  {
+    name: 'Apples', threshhold: 3000, forecast: 1398, currentInventory: 2210, Q1Sales: 3500,  Q2Sales: 56000
+   },
+  {
+    name: 'Banana', threshhold: 2000, forecast: 9800, currentInventory: 2290, Q1Sales: 3500 ,  Q2Sales: 7667
+  },
+  {
+    name: 'Oranges', threshhold: 2780, forecast: 3908, currentInventory: 2000, Q1Sales: 3500,  Q2Sales: 3345
+  },
+  {
+    name: 'Squash', threshhold: 1890, forecast: 4800, currentInventory: 2181, Q1Sales: 3500,  Q2Sales: 3400
+  },
+  {
+    name: 'Cantouloupe', threshhold: 2390, forecast: 3800, currentInventory: 2500, Q1Sales: 3500,  Q2Sales: 1200
+  },
+  {
+    name: 'Brocolli', threshhold: 3490, forecast: 4300, currentInventory: 2100, prevSales: 3500,  Q2Sales: 4578
   },
 ];
 
@@ -33,18 +51,23 @@ const color = ["#8884d8", "#82ca9d", "orange", "pink"]
 class App extends React.Component {
 
   state = {
-    type: "Line"
+    type: "Line",
+    records: 10
   }
 
   handleChange = (e) => {
     this.setState({type: e.target.value})
   }
 
+  handleRecordsChange = (e) => {
+    this.setState({records: e.target.value})
+  }
+
   fetchChart = () => {
-    const {type} = this.state
+    const {type, records} = this.state
     switch(type){
       case "Line": return <MyLineChart key={type}/>
-      case "Bar": return <MyBarChart key={type}/>
+      case "Bar": return <MyBarChart key={type} records = {records}/>
       case "Stacked": return <MyBarChart stacked key={type}/>
       default: return <MyLineChart />
     }
@@ -56,6 +79,11 @@ class App extends React.Component {
           <option>Line</option>
           <option>Bar</option>
           <option>Stacked</option>
+        </select>
+        <select onChange={this.handleRecordsChange}>
+          <option>5</option>
+          <option>10</option>
+          <option>15</option>
         </select>
       {this.fetchChart()}
       </div>
@@ -117,13 +145,14 @@ class MyLineChart extends React.Component {
 class MyBarChart extends React.Component {
 
   getBar = () => {
-    const {stacked} = this.props;
+    const {stacked, records} = this.props;
     const keysArr = Object.keys(data[0]).slice(1);
     const barArr= [];
     keysArr.forEach((item, index)=> {
       barArr.push(<Bar dataKey={item} stackId={stacked ? "a" : null} fill={color[index]} />)
     })
-    return barArr;
+    return records ? barArr.slice(0, records) : barArr;
+    //return barArr;
   }
 
   modifyFormatter = (value, name, props) => {
@@ -151,7 +180,7 @@ class MyBarChart extends React.Component {
       <BarChart
         width={500}
         height={300}
-        data={data}
+        data={data.slice(0, this.records)}
         margin={{
           top: 20, right: 30, left: 20, bottom: 5,
         }}
